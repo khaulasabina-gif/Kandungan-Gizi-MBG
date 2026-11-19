@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kandungan Gizi Menu MBG Hari Ini</title>
+    <!-- Menggunakan Font Plus Jakarta Sans agar modern dan sangat mudah dibaca -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --primary: #0d9488;      /* Hijau Tosca Cerah - Kesan Sehat & Higienis */
+            --primary-dark: #0f766e;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding-bottom: 40px;
+        }
+
+        /* Header / Bagian Atas */
+        header {
+            background: linear-gradient(135deg, #0d9488 0%, #059669 100%);
+            color: white;
+            padding: 28px 20px 36px;
+            text-align: center;
+            border-bottom-left-radius: 24px;
+            border-bottom-right-radius: 24px;
+            box-shadow: 0 4px 20px rgba(13, 148, 136, 0.2);
+        }
+
+        header h1 {
+            font-size: 1.45rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+        }
+
+        .date-badge {
+            display: inline-block;
+            background-color: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(4px);
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        /* Container Utama */
+        .container {
+            max-width: 600px;
+            margin: -18px auto 0;
+            padding: 0 16px;
+        }
+
+        /* Status Loading / Error */
+        #status-message {
+            background: #fffbeb;
+            color: #b45309;
+            border: 1px solid #fde68a;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            text-align: center;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        /* Kartu Informasi Gizi */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 18px;
+            padding: 20px;
+            margin-bottom: 18px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s ease;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .card-title-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .category-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .card h2 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        /* Opsional: Nama Menu Hari Ini di dalam kartu */
+        .menu-name {
+            font-size: 0.88rem;
+            color: var(--primary-dark);
+            background-color: #f0fdfa;
+            padding: 6px 12px;
+            border-radius: 8px;
+            margin-bottom: 14px;
+            font-weight: 600;
+            display: inline-block;
+            width: 100%;
+        }
+
+        /* Grid Rincian Gizi */
+        .nutrition-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        /* Kotak Energi dibuat penuh (1 baris sendiri) karena paling utama */
+        .nutrition-item.highlight {
+            grid-column: span 2;
+            background: linear-gradient(to right, #f0fdf4, #ecfdf5);
+            border: 1px solid #bbf7d0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+        }
+
+        .nutrition-item {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 10px 14px;
+        }
+
+        .nutri-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .nutrition-item.highlight .nutri-label {
+            color: #166534;
+            font-size: 0.9rem;
+        }
+
+        .nutri-value {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-top: 2px;
+        }
+
+        .nutrition-item.highlight .nutri-value {
+            font-size: 1.25rem;
+            color: #15803d;
+            margin-top: 0;
+        }
+
+        /* Warna Aksen Berbeda untuk Setiap Kategori */
+        .cat-1 .category-dot { background-color: #3b82f6; } /* Biru - SD Porsi Besar */
+        .cat-2 .category-dot { background-color: #06b6d4; } /* Cyan - SD Porsi Kecil */
+        .cat-3 .category-dot { background-color: #f59e0b; } /* Kuning/Oranye - Posyandu Balita */
+        .cat-4 .category-dot { background-color: #ec4899; } /* Pink - Posyandu Bumil & Busui */
+        .cat-5 .category-dot { background-color: #8b5cf6; } /* Ungu - SMA */
+
+        footer {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 24px;
+            padding: 0 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Kandungan Gizi Menu MBG Hari Ini</h1>
+        <div class="date-badge" id="tanggal-hari-ini">Memuat tanggal...</div>
+    </header>
+
+    <main class="container">
+        <!-- Pesan status jika menggunakan data contoh / sedang memuat -->
+        <div id="status-message"></div>
+
+        <!-- Tempat 5 Kartu Informasi Gizi akan dirender otomatis -->
+        <div id="cards-container"></div>
+    </main>
+
+    <footer>
+        <p>Informasi nilai gizi per porsi sajian harian.<br>Program Makan Bergizi Gratis (MBG)</p>
+    </footer>
+
+    <script>
+        // =========================================================================
+        // PENGATURAN GOOGLE SHEETS
+        // Ganti URL di bawah ini dengan link CSV dari Google Sheets Anda!
+        // (Biarkan kosong "" jika ingin melihat tampilan data contoh terlebih dahulu)
+        // =========================================================================
+        const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQk2Xo29YkpsgUV2jDzGFWaTVLOMgzLwgZ7CoyRwQtPoPATqL07OgCP_tuOz_FcciYvARJD--NfssKN/pub?output=csv"; 
+
+        // Data Contoh (Fallback jika Google Sheet belum dihubungkan atau offline)
+        const FALLBACK_DATA = [
+            { kategori: "SD Porsi Besar", menu: "Nasi Putih, Ayam Goreng Lengkuas, Tumis Buncis Wortel, Pisang", energi: "580 kkal", protein: "24 g", lemak: "18 g", karbohidrat: "78 g", serat: "6 g" },
+            { kategori: "SD Porsi Kecil", menu: "Nasi Putih, Ayam Goreng Lengkuas, Tumis Buncis Wortel, Pisang", energi: "450 kkal", protein: "18 g", lemak: "14 g", karbohidrat: "62 g", serat: "5 g" },
+            { kategori: "Posyandu Balita", menu: "Nasi Tim Ayam Cincang, Sup Wortel Kentang, Jeruk Manis", energi: "380 kkal", protein: "16 g", lemak: "12 g", karbohidrat: "50 g", serat: "4 g" },
+            { kategori: "Posyandu Bumil dan Busui", menu: "Nasi Putih, Ikan Tongkol Balado, Sayur Bayam Jagung, Tahu Bacem, Jeruk", energi: "680 kkal", protein: "30 g", lemak: "21 g", karbohidrat: "90 g", serat: "8 g" },
+            { kategori: "SMA", menu: "Nasi Putih, Ayam Goreng Lengkuas, Tempe Orek, Tumis Buncis Wortel, Pisang", energi: "720 kkal", protein: "32 g", lemak: "22 g", karbohidrat: "96 g", serat: "7 g" }
+        ];
+
+        // 1. Menampilkan Tanggal Hari Ini dalam Bahasa Indonesia
+        function tampilkanTanggal() {
+            const opsi = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const sekarang = new Date();
+            const tanggalFormatted = sekarang.toLocaleDateString('id-ID', opsi);
+            document.getElementById('tanggal-hari-ini').textContent = tanggalFormatted;
+        }
+
+        // 2. Fungsi untuk merender 5 kartu ke layar
+        function renderCards(dataList) {
+            const container = document.getElementById('cards-container');
+            container.innerHTML = '';
+
+            dataList.forEach((item, index) => {
+                const cardNumber = index + 1;
+                const menuHtml = item.menu && item.menu.trim() !== "" 
+                    ? `<div class="menu-name">🍽️ Menu: ${item.menu}</div>` 
+                    : '';
+
+                const cardHtml = `
+                    <section class="card cat-${cardNumber}">
+                        <div class="card-header">
+                            <div class="card-title-group">
+                                <span class="category-dot"></span>
+                                <h2>${item.kategori}</h2>
+                            </div>
+                        </div>
+                        ${menuHtml}
+                        <div class="nutrition-grid">
+                            <div class="nutrition-item highlight">
+                                <span class="nutri-label">⚡ Energi</span>
+                                <span class="nutri-value">${item.energi}</span>
+                            </div>
+                            <div class="nutrition-item">
+                                <div class="nutri-label">🥩 Protein</div>
+                                <div class="nutri-value">${item.protein}</div>
+                            </div>
+                            <div class="nutrition-item">
+                                <div class="nutri-label">🥑 Lemak</div>
+                                <div class="nutri-value">${item.lemak}</div>
+                            </div>
+                            <div class="nutrition-item">
+                                <div class="nutri-label">🍚 Karbohidrat</div>
+                                <div class="nutri-value">${item.karbohidrat}</div>
+                            </div>
+                            <div class="nutrition-item">
+                                <div class="nutri-label">🥬 Serat</div>
+                                <div class="nutri-value">${item.serat}</div>
+                            </div>
+                        </div>
+                    </section>
+                `;
+                container.innerHTML += cardHtml;
+            });
+        }
+
+        // 3. Parser CSV sederhana untuk membaca data Google Sheets (mendukung tanda koma dalam nama menu)
+        function parseCSV(csvText) {
+            const lines = csvText.trim().split('\n');
+            const result = [];
+            
+            // Mulai dari baris ke-1 (melewati baris judul/header di baris 0)
+            for (let i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
+                
+                // Regex memisahkan koma kecuali koma di dalam tanda kutip ("...")
+                const cols = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(col => 
+                    col.replace(/^"|"$/g, '').trim()
+                );
+
+                if (cols.length >= 6) {
+                    result.push({
+                        kategori: cols[0] || '',
+                        menu: cols[1] || '',
+                        energi: cols[2] || '-',
+                        protein: cols[3] || '-',
+                        lemak: cols[4] || '-',
+                        karbohidrat: cols[5] || '-',
+                        serat: cols[6] || '-'
+                    });
+                }
+            }
+            return result;
+        }
+
+        // 4. Mengambil data dari Google Sheets saat halaman dibuka
+        async function muatDataGizi() {
+            tampilkanTanggal();
+            const statusEl = document.getElementById('status-message');
+
+            if (!GOOGLE_SHEET_CSV_URL) {
+                statusEl.style.display = 'block';
+                statusEl.textContent = 'Mode Pratinjau: Menampilkan data contoh. Hubungkan URL Google Sheets untuk data live.';
+                renderCards(FALLBACK_DATA);
+                return;
+            }
+
+            try {
+                // Menambahkan timestamp unik agar browser HP tidak menyimpan cache lama
+                const urlAntiCache = `${GOOGLE_SHEET_CSV_URL}&t=${new Date().getTime()}`;
+                const response = await fetch(urlAntiCache);
+                
+                if (!response.ok) throw new Error('Gagal mengambil data');
+                
+                const csvText = await response.text();
+                const parsedData = parseCSV(csvText);
+
+                if (parsedData.length > 0) {
+                    statusEl.style.display = 'none';
+                    renderCards(parsedData);
+                } else {
+                    throw new Error('Format data kosong');
+                }
+            } catch (error) {
+                console.error(error);
+                statusEl.style.display = 'block';
+                statusEl.textContent = 'Gagal memuat data terbaru. Menampilkan data cadangan.';
+                renderCards(FALLBACK_DATA);
+            }
+        }
+
+        // Jalankan saat halaman selesai dimuat
+        document.addEventListener('DOMContentLoaded', muatDataGizi);
+    </script>
+</body>
+</html>
